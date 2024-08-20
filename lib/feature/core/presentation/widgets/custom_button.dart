@@ -10,12 +10,12 @@ class CustomButton extends StatelessWidget {
   final bool isArrowButton;
 
   const CustomButton({
-    Key? key,
+    super.key,
     required this.onTap,
     required this.label,
     this.decoration,
     this.isArrowButton = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
