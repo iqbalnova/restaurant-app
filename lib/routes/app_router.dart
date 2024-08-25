@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:myresto/feature/core/presentation/screens/main_screen.dart';
 import '../feature/home/presentation/screens/restaurant_detail.dart';
 import '../feature/home/presentation/screens/restaurant_screen.dart';
 import '../feature/core/presentation/screens/splash_screen.dart';
@@ -13,11 +14,10 @@ class AppRouter {
       switch (settings.name) {
         case AppRoutes.splash:
           return const SplashScreen();
+        case AppRoutes.main:
+          return const MainScreen();
         case AppRoutes.restaurant:
-          return BlocProvider(
-            create: (context) => RestaurantBloc(),
-            child: const RestaurantScreen(),
-          );
+          return const RestaurantScreen();
         case AppRoutes.restaurantDetail:
           final Map<String, dynamic> args =
               settings.arguments as Map<String, dynamic>;

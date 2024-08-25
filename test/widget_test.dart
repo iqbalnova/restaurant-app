@@ -1,30 +1,60 @@
-// // This is a basic Flutter widget test.
-// //
-// // To perform an interaction with a widget in your test, use the WidgetTester
-// // utility in the flutter_test package. For example, you can send tap and scroll
-// // gestures. You can also use WidgetTester to find child widgets in the widget
-// // tree, read text, and verify that the values of widget properties are correct.
+import 'dart:convert';
 
-// import 'package:flutter/material.dart';
-// import 'package:flutter_test/flutter_test.dart';
-// import 'package:myresto/app.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:myresto/data/models/restaurant_list.dart';
 
+void main() {
+  group('RestaurantList JSON Parsing', () {
+    test('should parse JSON to RestaurantList object correctly', () {
+      // Given JSON response
+      const String jsonResponse = '''
+      {
+        "error": false,
+        "message": "success",
+        "count": 2,
+        "restaurants": [
+          {
+            "id": "rqdv5juczeskfw1e867",
+            "name": "Melting Pot",
+            "description": "Lorem ipsum dolor sit amet...",
+            "pictureId": "14",
+            "city": "Medan",
+            "rating": 4.2
+          },
+          {
+            "id": "s1knt6za9kkfw1e867",
+            "name": "Kafe Kita",
+            "description": "Quisque rutrum. Aenean imperdiet...",
+            "pictureId": "25",
+            "city": "Gorontalo",
+            "rating": 4.0
+          }
+        ]
+      }
+      ''';
 
-// void main() {
-//   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-//     // Build our app and trigger a frame.
-//     await tester.pumpWidget(const MyApp(navigatorKey: null,));
+      // When parsing JSON response to RestaurantList
+      final restaurantList = RestaurantList.fromJson(json.decode(jsonResponse));
 
-//     // Verify that our counter starts at 0.
-//     expect(find.text('0'), findsOneWidget);
-//     expect(find.text('1'), findsNothing);
+      // Then
 
-//     // Tap the '+' icon and trigger a frame.
-//     await tester.tap(find.byIcon(Icons.add));
-//     await tester.pump();
+      expect(restaurantList.restaurants.length, 2);
 
-//     // Verify that our counter has incremented.
-//     expect(find.text('0'), findsNothing);
-//     expect(find.text('1'), findsOneWidget);
-//   });
-// }
+      final restaurant1 = restaurantList.restaurants[0];
+      expect(restaurant1.id, "rqdv5juczeskfw1e867");
+      expect(restaurant1.name, "Melting Pot");
+      expect(restaurant1.description, "Lorem ipsum dolor sit amet...");
+      expect(restaurant1.pictureId, "14");
+      expect(restaurant1.city, "Medan");
+      expect(restaurant1.rating, 4.2);
+
+      final restaurant2 = restaurantList.restaurants[1];
+      expect(restaurant2.id, "s1knt6za9kkfw1e867");
+      expect(restaurant2.name, "Kafe Kita");
+      expect(restaurant2.description, "Quisque rutrum. Aenean imperdiet...");
+      expect(restaurant2.pictureId, "25");
+      expect(restaurant2.city, "Gorontalo");
+      expect(restaurant2.rating, 4.0);
+    });
+  });
+}

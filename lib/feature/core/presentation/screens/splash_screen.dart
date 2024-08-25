@@ -19,7 +19,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> checkLoginStatus() async {
     await Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
-        Navigator.pushReplacementNamed(context, AppRoutes.restaurant);
+        Navigator.pushReplacementNamed(context, AppRoutes.main);
       }
     });
   }
