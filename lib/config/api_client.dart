@@ -1,70 +1,92 @@
-// import 'package:dio/dio.dart';
-// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:developer';
+import 'package:dio/dio.dart';
 
-// class ApiClient {
-//   final Dio _dio = Dio();
-//   static final ApiClient _singleton = ApiClient._internal();
-//   final storage = const FlutterSecureStorage();
+class ApiClient {
+  final Dio _dio;
 
-//   factory ApiClient() {
-//     return _singleton;
-//   }
+  ApiClient({String? baseUrl})
+      : _dio = Dio(
+          BaseOptions(
+            baseUrl:
+                baseUrl ?? 'https://restaurant-api.dicoding.dev', // Base URL
+            connectTimeout: const Duration(seconds: 10), // Connection timeout
+            receiveTimeout: const Duration(seconds: 10), // Receive timeout
+            sendTimeout: const Duration(seconds: 10), // Send timeout
+            headers: {
+              'Content-Type': 'application/json', // Default headers
+              'Accept': 'application/json',
+            },
+          ),
+        ) {
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          // Request interceptor
+          return handler.next(options);
+        },
+        onResponse: (response, handler) {
+          // Response interceptor
+          return handler.next(response);
+        },
+        onError: (DioException error, handler) {
+          String errorMessage = "An unexpected error occurred.";
 
-//   ApiClient._internal() {
-//     _dio.options.baseUrl = const String.fromEnvironment("BASE_URL");
-//     _dio.options.headers = {
-//       'Content-Type': 'application/json',
-//     };
-//     _dio.options.connectTimeout = const Duration(seconds: 30);
-//     _dio.interceptors.add(InterceptorsWrapper(
-//       onRequest: (options, handler) async {
-//         final token = await storage.read(key: 'token');
-//         if (token != null) {
-//           options.headers['Authorization'] = "Bearer $token";
-//         }
-//         handler.next(options);
-//       },
-//       onError: (error, handler) async {
-//         final token = await storage.read(key: 'token');
+          if (error.type == DioExceptionType.connectionTimeout) {
+            errorMessage = "Connection timed out.";
+          } else if (error.type == DioExceptionType.receiveTimeout) {
+            errorMessage = "Receive timed out.";
+          } else if (error.type == DioExceptionType.badResponse) {
+            errorMessage =
+                "Failed to load data. Status: ${error.response?.statusCode}";
+          } else if (error.type == DioExceptionType.connectionError) {
+            errorMessage = "No internet connection.";
+          }
 
-//         if (error.response?.statusCode != 401 ||
-//             error.response?.data['error'] == null ||
-//             token == null) {
-//           return handler.next(error);
-//         }
+          // Log the error message
+          log(errorMessage);
 
-//         // TODO: Handle Refresh Token
-//         // RequestOptions origin = error.requestOptions;
+          handler.reject(
+            DioException(
+              requestOptions: error.requestOptions,
+              error: errorMessage,
+              response: error.response,
+              type: error.type,
+            ),
+          );
+        },
+      ),
+    );
+  }
 
-//         // try {
-//         //   await GetIt.instance<AuthServices>().refreshSession();
+  // GET request
+  Future<Response> get(String path) async {
+    return _dio.get(path);
+  }
 
-//         //   Response response = await _dio.fetch(origin);
-//         //   return handler.resolve(response);
-//         // } on DioException catch (error) {
-//         //   handler.reject(error);
-//         // }
-//       },
-//     ));
-//   }
+  // POST request
+  Future<Response> post(String path, {Map<String, dynamic>? data}) async {
+    return _dio.post(path, data: data);
+  }
 
-//   Future<Response> apiPost(String endPoint, {dynamic data}) async {
-//     return _dio.post(endPoint, data: data);
-//   }
+  // PUT request
+  Future<Response> put(String path, {Map<String, dynamic>? data}) async {
+    return _dio.put(path, data: data);
+  }
 
-//   Future<Response> apiGet(String endPoint, {dynamic data}) async {
-//     return _dio.get(endPoint, queryParameters: data);
-//   }
+  // DELETE request
+  Future<Response> delete(String path, {Map<String, dynamic>? data}) async {
+    return _dio.delete(path, data: data);
+  }
 
-//   Future<Response> apiDelete(String endPoint, {dynamic data}) async {
-//     return _dio.delete(endPoint, data: data);
-//   }
+  // PATCH request
+  Future<Response> patch(String path, {Map<String, dynamic>? data}) async {
+    return _dio.patch(path, data: data);
+  }
 
-//   Future<Response> apiPut(String endPoint, {dynamic data}) async {
-//     return _dio.put(endPoint, data: data);
-//   }
+  // POST request with FormData
+  Future<Response> postForm(String path, FormData formData) async {
+    return _dio.post(path, data: formData);
+  }
 
-//   Future<Response> apiPatch(String endPoint, {dynamic data}) async {
-//     return _dio.patch(endPoint, data: data);
-//   }
-// }
+  // Add other HTTP methods here (post, put, delete, etc.)
+}

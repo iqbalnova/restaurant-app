@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+
 import 'restaurant.dart';
 
 class RestaurantList extends Equatable {
